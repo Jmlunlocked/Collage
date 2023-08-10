@@ -14,7 +14,7 @@ def main(repeats):
         and faff[0] in {"y", "Y"}
         and faff[1] in {"e", "E"}
     ):
-        return advanced_suite(repeats)
+        return semi_advanced_suite(repeats)
     if faff == "":
         pix = getpix()[0]
         findmostcompact(len(pix)**2)
