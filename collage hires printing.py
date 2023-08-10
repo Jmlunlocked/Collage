@@ -113,7 +113,7 @@ def getpix():
     global path
     pix = []
     area = 0
-    for i in os.listdir(ad):
+    for i in os.listdir(path):
         if i == ".DS_Store":
             continue
         img = Image.open(path + i)
