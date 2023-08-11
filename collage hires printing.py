@@ -174,10 +174,18 @@ def layout(pix, min_side, params, area):
     return print_complete
 
 
-# return final folder with printing coordinates for each pic
 def draw(pix, orientation, sprawlingest, widest_tallest, params, min_side, area):
     # determine which pic to add next
     def nextpic(pix, print_folder, min_side, border, orientation, aspect):
+        
+        def returnbestmatch(print_folder, candidates, space):
+            best = candidates[0]
+            for pic in candidates:
+                if (pic[aspect + 1] - print_folder[-1][aspect + 1])**2 < (best[aspect + 1] - print_folder[-1][aspect + 1])**2:
+                    best = pic
+            return best
+        
+        candidates = []
         for pic in pix:
             if (
                 pic[1 + orientation]
@@ -186,8 +194,10 @@ def draw(pix, orientation, sprawlingest, widest_tallest, params, min_side, area)
                 + border
                 < min_side
             ):
-                return pic
-        return pix[0]
+                candidates.append(pic)
+        if len(candidates) == 0:
+            return pix[0]
+        return returnbestmatch(print_folder.copy(), candidates, min_side - print_folder[-1][1 + orientation] - print_folder[-1][3 + orientation])
 
     # add x,y coordinates to the most recently added pic
     def addcoordinates(print_folder, min_side, border, orientation, aspect):
@@ -265,6 +275,7 @@ def draw(pix, orientation, sprawlingest, widest_tallest, params, min_side, area)
         pic[4] += top
 
     return (print_folder, (x + 2 * side, y + 2 * top))
+
 
 if __name__ == "__main__":
     main(5)
