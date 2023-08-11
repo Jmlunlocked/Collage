@@ -3,6 +3,7 @@ from PIL import Image
 import time
 import os
 from os import listdir
+import copy
 print("it probably makes sense to just hit enter the first time at least")
 
 def main(repeats):
@@ -14,7 +15,7 @@ def main(repeats):
         and faff[0] in {"y", "Y"}
         and faff[1] in {"e", "E"}
     ):
-        return semi_advanced_suite(repeats)
+        return advanced_suite(repeats)
     if (
         faff in {"", "n", "N"}
         or len(faff) < 4
@@ -23,9 +24,7 @@ def main(repeats):
         pix = getpix()[0]
         printmostcompact(len(pix)**2)
         return
-    print("just hit enter next time. you're being transferred to the advanced suite, which is not working well")
-    for i in range(repeats):
-        pass
+
     return semi_advanced_suite(repeats)
 
 def printmostcompact(x):
@@ -72,7 +71,7 @@ def advanced_suite(repeats):
                 if rep != 0:
                     if text.lower() == "rs":
                         params[-1] += 1
-                        print_complete = layout(pix.copy(), min_side, params, area)
+                        print_complete = layout(copy.deepcopy(pix), min_side, params, area)
                         coll(print_complete)
                         break
                 continue
@@ -83,7 +82,7 @@ def advanced_suite(repeats):
         if text.lower() == "rs":
             continue
         params[-1] = 0
-        print_complete = layout(pix.copy(), min_side, params, area)
+        print_complete = layout(copy.deepcopy(pix), min_side, params, area)
         coll(print_complete)
         
 def semi_advanced_suite(repeats):
@@ -104,8 +103,9 @@ def semi_advanced_suite(repeats):
                     b += 1
             
             params[i] = b
-        
-        print_complete = layout(pix, min_side, params, area)
+        print(pix.copy(), min_side, params, area)
+        print_complete = layout(copy.deepcopy(pix), min_side, params, area)
+        print(params)
         coll(print_complete)
         
 def getpix():
@@ -275,7 +275,6 @@ def draw(pix, orientation, sprawlingest, widest_tallest, params, min_side, area)
         pic[4] += top
 
     return (print_folder, (x + 2 * side, y + 2 * top))
-
 
 if __name__ == "__main__":
     main(5)
