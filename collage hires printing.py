@@ -16,6 +16,12 @@ def main(repeats):
         equivalent = equivalent_suite(pix, min_side, params, area, repeats)
         if equivalent:
             return
+        if len(pix) > 2:
+            answer = input("would you prefer to remove a pic and try again? ")
+            if answer.lower() in {"yes", "y"}:
+                main(repeats)
+                return
+        
     if (
         faff in {"Y", "y"}
         or len(faff) < 5
@@ -35,13 +41,14 @@ def main(repeats):
     return semi_advanced_suite(repeats)
 
 def printmostcompact(x, params):
-    not_equivalent = True
     min_bad = [[], 10**50]
     bigrandomnumber = 997
     for i in range(x):
-        pix, min_side, paramsthrowaway, area = getpix()
+        pix, min_side, paramsthrowaway, area, equivalent = getpix()
         params[-1] = i + bigrandomnumber
-        print_complete = layout(copy.deepcopy(pix), min_side, params, area, not_equivalent)
+        border = int(((area / len(pix))**0.5) * params[0])
+        min_side_corrected = min_side + (len(pix)**0.5 - 1) * border
+        print_complete = layout(copy.deepcopy(pix), min_side_corrected, params, area, equivalent)
         total_area = print_complete[1][0] * print_complete[1][1]
         if print_complete[2] * total_area < min_bad[-1]:
             print_complete[2] *= total_area
@@ -69,7 +76,7 @@ def isfloat(x):
 def advanced_suite(repeats):
     not_equivalent = True
 
-    pix, min_side, params, area = getpix()
+    pix, min_side, params, area, equivalent = getpix()
     displayed = (
         "do you want to reshuffle? Type 'rs' ",
         "how much border do you like? try using lower numbers ",
@@ -97,12 +104,14 @@ def advanced_suite(repeats):
         if text.lower() == "rs":
             continue
         params[-1] = 0
-        print_complete = layout(copy.deepcopy(pix), min_side, params, area, not_equivalent)
+        border = int(((area / len(pix))**0.5) * params[0])
+        min_side_corrected = min_side + (len(pix)**0.5 - 1) * border
+        print_complete = layout(copy.deepcopy(pix), min_side_corrected, params, area, not_equivalent)
         coll(print_complete)
         
 def semi_advanced_suite(repeats):
 
-    pix, min_side, params, area = getpix()
+    pix, min_side, params, area, not_equivalent = getpix()
     displayed = (
         "how much border do you like? - type as many 'b's as you fancy (don't go overboard!)",
         "How much top border do you like? - type as many 'b's as you fancy ",
@@ -178,17 +187,13 @@ def layout(pix, min_side, params, area, not_equivalent):
     if min_max_side > min_side:
         min_side = min_max_side
     if not_equivalent:
-        min_side = int(min_side * 1.3)
+        min_side = int(min_side * 1.1)
     
     if len(wide) + len(tall) == 0 and len(pix) < 4:
         pass
-    orientation = 1
-    if tallest[2] > widest[1]:
-        orientation = 0
-    if tallest[2] * 1.5 > widest[1] and len(tall) > 0:
-        orientation = 0
-    if not not_equivalent:
-        orientation = 0
+    orientation = 0
+    if tallest[2] > widest[1] and len(tall) > 0:
+        orientation = 1
     widest_tallest = [widest, tallest]
     print_complete = draw(
         pix, orientation, sprawlingest[1], widest_tallest, params, min_side, area, not_equivalent
@@ -324,7 +329,7 @@ def equivalent_suite(pix, min_side, params, area, repeats):
     
     for i in range(1, n + 1):
         if n % i == 0 and pix[0][1] * n / i < 2 * min_side and pix[0][1] * n / i > 0.5 * min_side:
-            candidates.append((i, pix[0][1] * n / (i**2 * pix[0][2])))
+            candidates.append((int(n / i + 0.1), pix[0][1] * n / (i**2 * pix[0][2])))
     if len(candidates) == 0:
         return False
     
@@ -363,7 +368,6 @@ def equivalent_suite(pix, min_side, params, area, repeats):
         params[-1] = 0
         border = int(((area / len(pix))**0.5) * params[0])
         min_side = candidate[0] * pix[0][1] + (candidate[0] - 1) * border
-        print(min_side, border)
         print_complete = layout(copy.deepcopy(pix), min_side, params, area, not_equivalent)
         coll(print_complete)
     return True
